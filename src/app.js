@@ -24,6 +24,12 @@ export default class App {
             const debugParams = debugParamsFromSyncSpec;
             console.log("DebugParams", debugParams);
         });
+
+        // start video playback
+        const v = document.getElementsByTagName("video")[0];
+        console.log("v");
+        console.log(v);
+        v.play();
     }
 
     enableDebugging() {
