@@ -33,63 +33,81 @@ export default class App {
         debugParams.serialDebugOn = false;
         debugParams.systemLogDebugOn = false;
 
-        console.log("dirname");
-        console.log(__dirname);
-
-        const appPath = path.join(__dirname, "storage", "sd");
-        console.log(appPath);
-        const currentSyncPath = path.join(appPath, "current-sync.xml");
-
         return new Promise( (resolve, reject) => {
+            let readAppFilePromise = this.readAppFile("current-sync.xml");
+            readAppFilePromise.then( (xmlData) => {
+                let convertXmlToJsonPromise = this.convertXmlToJson(xmlData);
+                convertXmlToJsonPromise.then( (syncSpecContainer) => {
+                    console.log("return from openCurrentSync");
+                    console.log(syncSpecContainer);
 
-            this.openCurrentSync().then( (syncContainer) => {
-                console.log("return from openCurrentSync");
-                console.log(syncContainer);
+                    // currentSync.sync.meta[0].client[0].enableSerialDebugging
+                    const syncSpec = syncSpecContainer.sync;
+                    const meta = syncSpec.meta[0];
+                    const clientData = meta.client[0];
+                    const enableSerialDebugging = clientData.enableSerialDebugging;
+                    const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
 
-                // currentSync.sync.meta[0].client[0].enableSerialDebugging
-                const syncSpec = syncContainer.sync;
-                const meta = syncSpec.meta[0];
-                const clientData = meta.client[0];
-                const enableSerialDebugging = clientData.enableSerialDebugging;
-                const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
+                    console.log(syncSpec);
+                    console.log(meta);
+                    console.log(clientData);
+                    console.log(enableSerialDebugging);
+                    console.log(enableSystemLogDebugging);
 
-                console.log(syncSpec);
-                console.log(meta);
-                console.log(clientData);
-                console.log(enableSerialDebugging);
-                console.log(enableSystemLogDebugging);
+                    debugParams.serialDebugOn = enableSerialDebugging;
+                    debugParams.systemLogDebugOn = enableSystemLogDebugging;
 
-                debugParams.serialDebugOn = enableSerialDebugging;
-                debugParams.systemLogDebugOn = enableSystemLogDebugging;
+                    resolve(debugParams);
+                })
+                .catch(
+                    (reason) => {
+                        console.log("failed to convertXmlToJson");
+                        console.log(reason);
+                    }
+                );
 
-                resolve(debugParams);
             })
             .catch(
                 (reason) => {
-                    console.log("failed to openCurrentSync");
+                    console.log("failed to readAppFile");
                     console.log(reason);
                 }
             );
         });
     }
 
-    openCurrentSync() {
+    readAppFile(filePath) {
 
         const appPath = path.join(__dirname, "storage", "sd");
-        const currentSyncPath = path.join(appPath, "current-sync.xml");
+        const fullPath = path.join(appPath, filePath);
 
-        return new Promise(function(resolve, reject) {
-            fs.readFile(currentSyncPath, (err, data) => {
+        return new Promise( (resolve, reject) => {
+            fs.readFile(fullPath, (err, data) => {
 
                 if (err) {
-                    console.log("failed to read current-sync.xml");
+                    console.log("error reading file in readAppFile");
+                    console.log(err);
                     reject(err);
                 }
 
-                var parser = new xml2js.Parser();
-                parser.parseString(data, function (err, result) {
-                    resolve(result);
-                });
+                resolve(data);
+            });
+        });
+    }
+
+    convertXmlToJson(xml) {
+
+        return new Promise( (resolve, reject) => {
+
+            var parser = new xml2js.Parser();
+            parser.parseString(xml, function (err, jsonResult) {
+
+                if (err) {
+                    console.log("parse error in convertXmlToJson");
+                    console.log(err);
+                    reject(err);
+                }
+                resolve(jsonResult);
             });
         });
     }
