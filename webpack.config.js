@@ -1,6 +1,7 @@
 module.exports = {
 
   entry: './src/autorun.js',
+  target: 'node',
   output: {
     path: './build',
     filename: 'bundle.js'
@@ -29,5 +30,11 @@ module.exports = {
         loader: 'json'
       }
     ]
-  }
+  },
+  // node: {
+  //   console: true,
+  //   fs: 'empty',
+  //   net: 'empty',
+  //   tls: 'empty'
+  // }
 }
