@@ -57,48 +57,6 @@ export default class App {
                 resolve(debugParams);
             });
         });
-
-        // return new Promise( (resolve, reject) => {
-        //     let readAppFilePromise = this.readAppFile("current-sync.xml");
-        //     readAppFilePromise.then( (xmlData) => {
-        //         let convertXmlToJsonPromise = this.convertXmlToJson(xmlData);
-        //         convertXmlToJsonPromise.then( (syncSpecContainer) => {
-        //             console.log("return from openCurrentSync");
-        //             console.log(syncSpecContainer);
-        //
-        //             // currentSync.sync.meta[0].client[0].enableSerialDebugging
-        //             const syncSpec = syncSpecContainer.sync;
-        //             const meta = syncSpec.meta[0];
-        //             const clientData = meta.client[0];
-        //             const enableSerialDebugging = clientData.enableSerialDebugging;
-        //             const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
-        //
-        //             console.log(syncSpec);
-        //             console.log(meta);
-        //             console.log(clientData);
-        //             console.log(enableSerialDebugging);
-        //             console.log(enableSystemLogDebugging);
-        //
-        //             debugParams.serialDebugOn = enableSerialDebugging;
-        //             debugParams.systemLogDebugOn = enableSystemLogDebugging;
-        //
-        //             resolve(debugParams);
-        //         })
-        //         .catch(
-        //             (reason) => {
-        //                 console.log("failed to convertXmlToJson");
-        //                 console.log(reason);
-        //             }
-        //         );
-        //
-        //     })
-        //     .catch(
-        //         (reason) => {
-        //             console.log("failed to readAppFile");
-        //             console.log(reason);
-        //         }
-        //     );
-        // });
     }
 
     readCurrentSync() {
@@ -106,8 +64,20 @@ export default class App {
             this.readAppFile("current-sync.xml").then( (xmlData) => {
                 this.convertXmlToJson(xmlData).then( (syncSpecContainer) => {
                     resolve(syncSpecContainer);
-                });
-            });
+                })
+                .catch(
+                    (reason) => {
+                        console.log("failed to convertXmlToJson");
+                        console.log(reason);
+                    }
+                );
+            })
+            .catch(
+                (reason) => {
+                    console.log("failed to readAppFile");
+                    console.log(reason);
+                }
+            );
         });
     }
 
