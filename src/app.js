@@ -34,45 +34,80 @@ export default class App {
         debugParams.systemLogDebugOn = false;
 
         return new Promise( (resolve, reject) => {
-            let readAppFilePromise = this.readAppFile("current-sync.xml");
-            readAppFilePromise.then( (xmlData) => {
-                let convertXmlToJsonPromise = this.convertXmlToJson(xmlData);
-                convertXmlToJsonPromise.then( (syncSpecContainer) => {
-                    console.log("return from openCurrentSync");
-                    console.log(syncSpecContainer);
+            this.readCurrentSync().then( (syncSpecContainer) => {
+                console.log("return from openCurrentSync");
+                console.log(syncSpecContainer);
 
-                    // currentSync.sync.meta[0].client[0].enableSerialDebugging
-                    const syncSpec = syncSpecContainer.sync;
-                    const meta = syncSpec.meta[0];
-                    const clientData = meta.client[0];
-                    const enableSerialDebugging = clientData.enableSerialDebugging;
-                    const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
+                // currentSync.sync.meta[0].client[0].enableSerialDebugging
+                const syncSpec = syncSpecContainer.sync;
+                const meta = syncSpec.meta[0];
+                const clientData = meta.client[0];
+                const enableSerialDebugging = clientData.enableSerialDebugging;
+                const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
 
-                    console.log(syncSpec);
-                    console.log(meta);
-                    console.log(clientData);
-                    console.log(enableSerialDebugging);
-                    console.log(enableSystemLogDebugging);
+                console.log(syncSpec);
+                console.log(meta);
+                console.log(clientData);
+                console.log(enableSerialDebugging);
+                console.log(enableSystemLogDebugging);
 
-                    debugParams.serialDebugOn = enableSerialDebugging;
-                    debugParams.systemLogDebugOn = enableSystemLogDebugging;
+                debugParams.serialDebugOn = enableSerialDebugging;
+                debugParams.systemLogDebugOn = enableSystemLogDebugging;
 
-                    resolve(debugParams);
-                })
-                .catch(
-                    (reason) => {
-                        console.log("failed to convertXmlToJson");
-                        console.log(reason);
-                    }
-                );
+                resolve(debugParams);
+            });
+        });
 
-            })
-            .catch(
-                (reason) => {
-                    console.log("failed to readAppFile");
-                    console.log(reason);
-                }
-            );
+        // return new Promise( (resolve, reject) => {
+        //     let readAppFilePromise = this.readAppFile("current-sync.xml");
+        //     readAppFilePromise.then( (xmlData) => {
+        //         let convertXmlToJsonPromise = this.convertXmlToJson(xmlData);
+        //         convertXmlToJsonPromise.then( (syncSpecContainer) => {
+        //             console.log("return from openCurrentSync");
+        //             console.log(syncSpecContainer);
+        //
+        //             // currentSync.sync.meta[0].client[0].enableSerialDebugging
+        //             const syncSpec = syncSpecContainer.sync;
+        //             const meta = syncSpec.meta[0];
+        //             const clientData = meta.client[0];
+        //             const enableSerialDebugging = clientData.enableSerialDebugging;
+        //             const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
+        //
+        //             console.log(syncSpec);
+        //             console.log(meta);
+        //             console.log(clientData);
+        //             console.log(enableSerialDebugging);
+        //             console.log(enableSystemLogDebugging);
+        //
+        //             debugParams.serialDebugOn = enableSerialDebugging;
+        //             debugParams.systemLogDebugOn = enableSystemLogDebugging;
+        //
+        //             resolve(debugParams);
+        //         })
+        //         .catch(
+        //             (reason) => {
+        //                 console.log("failed to convertXmlToJson");
+        //                 console.log(reason);
+        //             }
+        //         );
+        //
+        //     })
+        //     .catch(
+        //         (reason) => {
+        //             console.log("failed to readAppFile");
+        //             console.log(reason);
+        //         }
+        //     );
+        // });
+    }
+
+    readCurrentSync() {
+        return new Promise( (resolve, reject) => {
+            this.readAppFile("current-sync.xml").then( (xmlData) => {
+                this.convertXmlToJson(xmlData).then( (syncSpecContainer) => {
+                    resolve(syncSpecContainer);
+                });
+            });
         });
     }
 
