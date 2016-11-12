@@ -20,7 +20,7 @@ export default class App {
 
             const debugParams = this.enableDebugging();
             console.log("DebugParams", debugParams);
-        }, 20000);
+        }, 2000);
     }
 
     enableDebugging() {
@@ -37,35 +37,31 @@ export default class App {
         console.log(appPath);
         const currentSyncPath = path.join(appPath, "current-sync.xml");
 
-        // fs.readdir(__dirname, function(err, items) {
-        //     console.log("number of items is: ", items.length);
-        //     console.log(items);
-        // });
+        this.openCurrentSync().then( (syncContainer) => {
+            console.log("return from openCurrentSync");
+            console.log(syncContainer);
 
-        const data = fs.readFileSync(currentSyncPath);
+            // currentSync.sync.meta[0].client[0].enableSerialDebugging
+            const syncSpec = syncContainer.sync;
+            const meta = syncSpec.meta[0];
+            const clientData = meta.client[0];
+            const enableSerialDebugging = clientData.enableSerialDebugging;
+            const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
 
-        // const currentSync = JSON.parse(data);
+            console.log(syncSpec);
+            console.log(meta);
+            console.log(clientData);
+            console.log(enableSerialDebugging);
+            console.log(enableSystemLogDebugging);
 
-        var parser = new xml2js.Parser();
-        parser.parseString(data, function (err, result) {
-            console.log("parsed currentSync");
-            console.log(result);
 
-            console.log("now try invoking JSON.parse on result");
-            const parsed = JSON.parse(result);
-            console.log(parsed);
-        });
-
-        // this.openCurrentSync().then( (currentSync) => {
-        //     console.log("return from openCurrentSync");
-        //     console.log(currentSync);
-        // })
-        // .catch(
-        //     (reason) => {
-        //         console.log("failed to openCurrentSync");
-        //         console.log(reason);
-        //     }
-        // );
+        })
+        .catch(
+            (reason) => {
+                console.log("failed to openCurrentSync");
+                console.log(reason);
+            }
+        );
 
         // syncSpec = CreateObject("roSyncSpec")
         // if syncSpec.ReadFromFile("current-sync.xml") or syncSpec.ReadFromFile("local-sync.xml") or syncSpec.ReadFromFile("localToBSN-sync.xml") or syncSpec.ReadFromFile("localSetupToStandalone-sync.xml") then
@@ -86,17 +82,22 @@ export default class App {
 
     openCurrentSync() {
 
+        const appPath = path.join(__dirname, "storage", "sd");
+        const currentSyncPath = path.join(appPath, "current-sync.xml");
+
         return new Promise(function(resolve, reject) {
-            fs.readFile("current-sync.xml", (err, data) => {
+            fs.readFile(currentSyncPath, (err, data) => {
+
                 if (err) {
                     console.log("failed to read current-sync.xml");
                     reject(err);
                 }
-                const currentSync = JSON.parse(data);
-                resolve(currentSync);
+
+                var parser = new xml2js.Parser();
+                parser.parseString(data, function (err, result) {
+                    resolve(result);
+                });
             });
         });
     }
-
-
 }
