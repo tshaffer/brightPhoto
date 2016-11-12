@@ -7,20 +7,23 @@ export default class App {
 
     constructor() {
         console.log("instantiate app");
+        console.log("attach debugger now");
+        setTimeout( () => {
+            this.run();
+        }, 1000);
     }
 
     run() {
+
         console.log("run app");
+        const autorunVersion = "8.0.0"; // BA 5.0.0
+        const customAutorunVersion = "8.0.0";
 
-        console.log("attach debugger now");
-        setTimeout( () => {
-            console.log("continue with run()");
-            const autorunVersion = "8.0.0"; // BA 5.0.0
-            const customAutorunVersion = "8.0.0";
-
-            const debugParams = this.enableDebugging();
+        let enableDebuggingPromise = this.enableDebugging();
+        enableDebuggingPromise.then( (debugParamsFromSyncSpec) => {
+            const debugParams = debugParamsFromSyncSpec;
             console.log("DebugParams", debugParams);
-        }, 2000);
+        });
     }
 
     enableDebugging() {
@@ -37,47 +40,37 @@ export default class App {
         console.log(appPath);
         const currentSyncPath = path.join(appPath, "current-sync.xml");
 
-        this.openCurrentSync().then( (syncContainer) => {
-            console.log("return from openCurrentSync");
-            console.log(syncContainer);
+        return new Promise( (resolve, reject) => {
 
-            // currentSync.sync.meta[0].client[0].enableSerialDebugging
-            const syncSpec = syncContainer.sync;
-            const meta = syncSpec.meta[0];
-            const clientData = meta.client[0];
-            const enableSerialDebugging = clientData.enableSerialDebugging;
-            const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
+            this.openCurrentSync().then( (syncContainer) => {
+                console.log("return from openCurrentSync");
+                console.log(syncContainer);
 
-            console.log(syncSpec);
-            console.log(meta);
-            console.log(clientData);
-            console.log(enableSerialDebugging);
-            console.log(enableSystemLogDebugging);
+                // currentSync.sync.meta[0].client[0].enableSerialDebugging
+                const syncSpec = syncContainer.sync;
+                const meta = syncSpec.meta[0];
+                const clientData = meta.client[0];
+                const enableSerialDebugging = clientData.enableSerialDebugging;
+                const enableSystemLogDebugging = clientData.enableSystemLogDebugging;
 
+                console.log(syncSpec);
+                console.log(meta);
+                console.log(clientData);
+                console.log(enableSerialDebugging);
+                console.log(enableSystemLogDebugging);
 
-        })
-        .catch(
-            (reason) => {
-                console.log("failed to openCurrentSync");
-                console.log(reason);
-            }
-        );
+                debugParams.serialDebugOn = enableSerialDebugging;
+                debugParams.systemLogDebugOn = enableSystemLogDebugging;
 
-        // syncSpec = CreateObject("roSyncSpec")
-        // if syncSpec.ReadFromFile("current-sync.xml") or syncSpec.ReadFromFile("local-sync.xml") or syncSpec.ReadFromFile("localToBSN-sync.xml") or syncSpec.ReadFromFile("localSetupToStandalone-sync.xml") then
-        // if syncSpec.LookupMetadata("client", "enableSerialDebugging") = "True" then
-        // debugParams.serialDebugOn = true
-        // endif
-        // if syncSpec.LookupMetadata("client", "enableSystemLogDebugging") = "True" then
-        // debugParams.systemLogDebugOn = true
-        // endif
-        // syncSpec = invalid
-        // endif
-
-        debugParams.serialDebugOn = true;
-        debugParams.systemLogDebugOn = false;
-
-        return debugParams;
+                resolve(debugParams);
+            })
+            .catch(
+                (reason) => {
+                    console.log("failed to openCurrentSync");
+                    console.log(reason);
+                }
+            );
+        });
     }
 
     openCurrentSync() {
