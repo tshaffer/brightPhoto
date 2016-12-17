@@ -87,6 +87,7 @@ export default class App {
     app.get('/launchSlideShow', (req, res) => {
       res.set('Access-Control-Allow-Origin', '*');
       const albumId = req.query.albumId;
+      document.getElementById("main").innerHTML += "Launch slide show using albumId: " + albumId + "<br>";
       let promise = this.fetchAlbum(albumId);
       promise.then( (feed) => {
         console.log("Number of photos is: " + feed.entry.length);
