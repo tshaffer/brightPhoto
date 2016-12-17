@@ -7,11 +7,16 @@ if mp <> "1" then
 endif
 
 r=CreateObject("roRectangle", 0,0,1920,1080)
-h=CreateObject("roHtmlWidget", r)
-h.allowjavascripturls({all:"*"})
-h.SetUrl("file:///sd:/autorun.html")
-h.StartInspectorServer(3000)
-h.Show()
+
+aa=createobjecT("roassociativearray")
+aa.addreplace("nodejs_enabled",true)
+aa.addreplace("brightsign_js_objects_enabled",true)
+aa.addreplace("url","file:///sd:/autorun.html")
+is = createobjecT("roassociativearray")
+is.addreplace("port",3000)
+aa.addreplace("inspector_server",is)
+h=CreateObject("roHtmlWidget", r, aa)
+h.show()
 
 p = CreateObject("roMessagePort")
 h.SetPort(p)

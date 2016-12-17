@@ -4,7 +4,7 @@
   "description": "autorun in javascript",
   "main": "autorun.js",
   "scripts": {
-    "b": "webpack --config ./webpack.config.js --watch"
+    "bs": "webpack --config ./webpack.config.js --watch"
   },
   "repository": {
     "type": "git",
@@ -14,7 +14,8 @@
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.16.0",
-    "xml2js": "^0.4.17"
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
