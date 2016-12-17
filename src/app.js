@@ -12,7 +12,11 @@ app.use('/', express.static(path.join(__dirname, '../client/')));
 export default class App {
 
   constructor() {
+
     console.log("instantiate app - attach debugger now");
+
+    this.imageUrl = "";
+
     setTimeout( () => {
       this.run();
     }, 1000);
@@ -115,16 +119,24 @@ export default class App {
         const img = document.getElementById("mainImage");
         img.display = 'block';
 
+        img.onload = () => {
+          this.scaleImage(this.photoWidth, this.photoHeight, img);
+          console.log("img.onload invoked: ", this.imageUrl);
+        };
+
         let photoIndex = 0;
         setInterval( () => {
           const photo = photos[photoIndex];
           const photoContent = photos[photoIndex].content[0].$;
 
-          const photoWidth = Number(photo['gphoto:width'][0]);
-          const photoHeight = Number(photo['gphoto:height'][0]);
-          this.scaleImage(photoWidth, photoHeight, img);
+          this.photoWidth = Number(photo['gphoto:width'][0]);
+          this.photoHeight = Number(photo['gphoto:height'][0]);
+          // this.scaleImage(photoWidth, photoHeight, img);
 
+          this.imageUrl = photoContent.src;
+          console.log("set img.src: ", photoContent.src);
           img.src = photoContent.src;
+
           photoIndex = (photoIndex + 1) % photos.length;
         }, 4000);
 
