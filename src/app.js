@@ -20,7 +20,7 @@ export default class App {
     console.log("attach debugger now");
     setTimeout( () => {
       this.run();
-    }, 5000);
+    }, 1000);
 
     const port = process.env.PORT || 8080;
     app.listen(port);
@@ -70,6 +70,33 @@ export default class App {
     });
   }
 
+  scaleImage(width, height, img) {
+
+    console.log("entry: ", width, height);
+
+    let scaleFactor = 1.0;
+
+    const widthRatio = width / 1920;
+    const heightRatio = height / 1080;
+    if (widthRatio < 1 && heightRatio < 1) {
+      scaleFactor = 1.0;
+    }
+    else if (widthRatio > heightRatio) {
+      scaleFactor = widthRatio;
+    }
+    else {
+      scaleFactor = heightRatio;
+    }
+    const scaledWidth = width / scaleFactor;
+    const scaledHeight = height / scaleFactor;
+
+    img.style.width = scaledWidth.toString() + "px";
+    img.style.height = scaledHeight.toString() + "px";
+
+    console.log("exit: ", scaledWidth, scaledHeight, scaleFactor);
+    console.log(img.style.width, img.style.height);
+  }
+
   run() {
 
     console.log("launch shafferoogle server - listening on port 8080");
@@ -90,22 +117,29 @@ export default class App {
       // document.getElementById("main").innerHTML += "Launch slide show using albumId: " + albumId + "<br>";
       let promise = this.fetchAlbum(albumId);
       promise.then( (feed) => {
-        console.log("Number of photos is: " + feed.entry.length);
-        feed.entry.forEach( (photo) => {
-          const photoUrl = photo.content[0].$.src;
-          const photoType = photo.content[0].$.type;
-        });
+
+        const photos = feed.entry;
+
+        console.log("Number of photos is: " + photos.length);
 
         const img = document.getElementById("mainImage");
-        // img.src = feed.entry[0].content[0].$.src;
-        // console.log("img.src: ", img.src);
-        img.width = 1920;
-        img.height = 1080;
+        img.display = 'block';
+        // img.style.maxWidth = '1920px';
+        // img.style.maxHeight = '1080px';
+        // img.style.width = 'auto';
+        // img.style.height = 'auto';
 
         let photoIndex = 0;
         setInterval( () => {
-          img.src = feed.entry[photoIndex].content[0].$.src;
-          photoIndex = (photoIndex + 1) % feed.entry.length;
+          const photo = photos[photoIndex];
+          const photoContent = photos[photoIndex].content[0].$;
+
+          const photoWidth = Number(photo['gphoto:width'][0]);
+          const photoHeight = Number(photo['gphoto:height'][0]);
+          this.scaleImage(photoWidth, photoHeight, img);
+
+          img.src = photoContent.src;
+          photoIndex = (photoIndex + 1) % photos.length;
         }, 4000);
 
       });
