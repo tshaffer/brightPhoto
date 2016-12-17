@@ -34,27 +34,18 @@ export default class App {
       const getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
       axios.get(getAlbumsUrl)
         .then(function (albumsResponse) {
-          console.log(albumsResponse);
-          console.log("success");
-
           const xml = albumsResponse.data;
-
           const parseString = require('xml2js').parseString;
           parseString(xml, function (_, result) {
             resolve(result);
-            // console.dir(result);
-            // // res.send(result);
-            // res.status(200).send(result);
           });
         })
         .catch(function (albumsError) {
           console.log(albumsError);
           reject(albumsError);
-          // res.send(albumsError);
         });
     });
   }
-
 
   fetchAlbum(albumId) {
 
@@ -65,11 +56,7 @@ export default class App {
       axios.get(getAlbumUrl, {
         params: {albumId}
       }).then(function (albumResponse) {
-        console.log(albumResponse);
-        console.log("success");
-
         const xml = albumResponse.data;
-
         const parseString = require('xml2js').parseString;
         parseString(xml, function (_, result) {
           console.dir(result);
@@ -88,63 +75,24 @@ export default class App {
     console.log("launch shafferoogle server - listening on port 8080");
 
     app.get('/fetchAlbums', (_, res) => {
-
       res.set('Access-Control-Allow-Origin', '*');
-
-      console.log("fetchAlbums endpoint invoked");
-
       this.fetchAlbums().then( (albumsResponse) => {
-        console.dir(albumsResponse);
         res.status(200).send(albumsResponse);
       })
       .catch( (albumsError) => {
-        console.log(albumsError);
         res.send(albumsError);
       });
-
-
-
-
-      // var getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
-      // axios.get(getAlbumsUrl)
-      //   .then(function (albumsResponse) {
-      //     console.log(albumsResponse);
-      //     console.log("success");
-      //
-      //     var xml = albumsResponse.data;
-      //
-      //     var parseString = require('xml2js').parseString;
-      //     parseString(xml, function (_, result) {
-      //       console.dir(result);
-      //       // res.send(result);
-      //       res.status(200).send(result);
-      //     });
-      //   })
-      //   .catch(function (albumsError) {
-      //     console.log(albumsError);
-      //     res.send(albumsError);
-      //   });
     });
 
     app.get('/launchSlideShow', (req, res) => {
-
       res.set('Access-Control-Allow-Origin', '*');
-
       const albumId = req.query.albumId;
-      console.log("launchSlideShow invoked: ", albumId);
-
       let promise = this.fetchAlbum(albumId);
       promise.then( (feed) => {
-        console.log("launchSlideShow, album details are:");
-        console.log(feed);
-
         console.log("Number of photos is: " + feed.entry.length);
-
         feed.entry.forEach( (photo) => {
           const photoUrl = photo.content[0].$.src;
-          console.log(photoUrl);
           const photoType = photo.content[0].$.type;
-          console.log(photoType);
         });
       });
       res.status(200).send(null);
