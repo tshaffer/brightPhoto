@@ -5,8 +5,9 @@ const bodyParser = require('body-parser');
 // const url = require('url');
 // const fs = require('fs');
 const axios = require('axios');
+// const xml2js = require('xml2js');
 
-var app = express();
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -19,10 +20,38 @@ export default class App {
     console.log("attach debugger now");
     setTimeout( () => {
       this.run();
-    }, 30000);
+    }, 5000);
 
-    var port = process.env.PORT || 8080;
+    const port = process.env.PORT || 8080;
     app.listen(port);
+  }
+
+
+  fetchAlbum(albumId) {
+
+    return new Promise( (resolve, reject) => {
+
+      const getAlbumUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family/albumid/" + albumId;
+
+      axios.get(getAlbumUrl, {
+        params: {albumId}
+      }).then(function (albumResponse) {
+        console.log(albumResponse);
+        console.log("success");
+
+        const xml = albumResponse.data;
+
+        const parseString = require('xml2js').parseString;
+        parseString(xml, function (_, result) {
+          console.dir(result);
+          resolve(result.feed);
+        });
+      })
+      .catch(function (fetchAlbumError) {
+        console.log(fetchAlbumError);
+        reject(fetchAlbumError);
+      });
+    });
   }
 
   run() {
@@ -53,6 +82,30 @@ export default class App {
           console.log(albumsError);
           res.send(albumsError);
         });
+    });
+
+    app.get('/launchSlideShow', (req, res) => {
+
+      res.set('Access-Control-Allow-Origin', '*');
+
+      const albumId = req.query.albumId;
+      console.log("launchSlideShow invoked: ", albumId);
+
+      let promise = this.fetchAlbum(albumId);
+      promise.then( (feed) => {
+        console.log("launchSlideShow, album details are:");
+        console.log(feed);
+
+        console.log("Number of photos is: " + feed.entry.length);
+
+        feed.entry.forEach( (photo) => {
+          const photoUrl = photo.content[0].$.src;
+          console.log(photoUrl);
+          const photoType = photo.content[0].$.type;
+          console.log(photoType);
+        });
+      });
+      res.status(200).send(null);
     });
   }
 }
