@@ -27,6 +27,35 @@ export default class App {
   }
 
 
+  fetchAlbums() {
+
+    return new Promise( (resolve, reject) => {
+
+      const getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
+      axios.get(getAlbumsUrl)
+        .then(function (albumsResponse) {
+          console.log(albumsResponse);
+          console.log("success");
+
+          const xml = albumsResponse.data;
+
+          const parseString = require('xml2js').parseString;
+          parseString(xml, function (_, result) {
+            resolve(result);
+            // console.dir(result);
+            // // res.send(result);
+            // res.status(200).send(result);
+          });
+        })
+        .catch(function (albumsError) {
+          console.log(albumsError);
+          reject(albumsError);
+          // res.send(albumsError);
+        });
+    });
+  }
+
+
   fetchAlbum(albumId) {
 
     return new Promise( (resolve, reject) => {
@@ -59,29 +88,42 @@ export default class App {
     console.log("launch shafferoogle server - listening on port 8080");
 
     app.get('/fetchAlbums', (_, res) => {
+
       res.set('Access-Control-Allow-Origin', '*');
 
-      console.log("fetchAlbums invoked");
+      console.log("fetchAlbums endpoint invoked");
 
-      var getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
-      axios.get(getAlbumsUrl)
-        .then(function (albumsResponse) {
-          console.log(albumsResponse);
-          console.log("success");
+      this.fetchAlbums().then( (albumsResponse) => {
+        console.dir(albumsResponse);
+        res.status(200).send(albumsResponse);
+      })
+      .catch( (albumsError) => {
+        console.log(albumsError);
+        res.send(albumsError);
+      });
 
-          var xml = albumsResponse.data;
 
-          var parseString = require('xml2js').parseString;
-          parseString(xml, function (_, result) {
-            console.dir(result);
-            // res.send(result);
-            res.status(200).send(result);
-          });
-        })
-        .catch(function (albumsError) {
-          console.log(albumsError);
-          res.send(albumsError);
-        });
+
+
+      // var getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
+      // axios.get(getAlbumsUrl)
+      //   .then(function (albumsResponse) {
+      //     console.log(albumsResponse);
+      //     console.log("success");
+      //
+      //     var xml = albumsResponse.data;
+      //
+      //     var parseString = require('xml2js').parseString;
+      //     parseString(xml, function (_, result) {
+      //       console.dir(result);
+      //       // res.send(result);
+      //       res.status(200).send(result);
+      //     });
+      //   })
+      //   .catch(function (albumsError) {
+      //     console.log(albumsError);
+      //     res.send(albumsError);
+      //   });
     });
 
     app.get('/launchSlideShow', (req, res) => {
