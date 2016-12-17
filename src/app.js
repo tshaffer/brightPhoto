@@ -97,10 +97,16 @@ export default class App {
         });
 
         const img = document.getElementById("mainImage");
-        img.src = feed.entry[0].content[0].$.src;
-        console.log("img.src: ", img.src);
+        // img.src = feed.entry[0].content[0].$.src;
+        // console.log("img.src: ", img.src);
         img.width = 1920;
         img.height = 1080;
+
+        let photoIndex = 0;
+        setInterval( () => {
+          img.src = feed.entry[photoIndex].content[0].$.src;
+          photoIndex = (photoIndex + 1) % feed.entry.length;
+        }, 4000);
 
       });
       res.status(200).send(null);
