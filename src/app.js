@@ -87,7 +87,7 @@ export default class App {
     app.get('/launchSlideShow', (req, res) => {
       res.set('Access-Control-Allow-Origin', '*');
       const albumId = req.query.albumId;
-      document.getElementById("main").innerHTML += "Launch slide show using albumId: " + albumId + "<br>";
+      // document.getElementById("main").innerHTML += "Launch slide show using albumId: " + albumId + "<br>";
       let promise = this.fetchAlbum(albumId);
       promise.then( (feed) => {
         console.log("Number of photos is: " + feed.entry.length);
@@ -95,6 +95,13 @@ export default class App {
           const photoUrl = photo.content[0].$.src;
           const photoType = photo.content[0].$.type;
         });
+
+        const img = document.getElementById("mainImage");
+        img.src = feed.entry[0].content[0].$.src;
+        console.log("img.src: ", img.src);
+        img.width = 1920;
+        img.height = 1080;
+
       });
       res.status(200).send(null);
     });
