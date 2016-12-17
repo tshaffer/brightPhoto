@@ -1,11 +1,7 @@
-const express = require('express');
 const path = require('path');
+const express = require('express');
 const bodyParser = require('body-parser');
-// const http = require('http');
-// const url = require('url');
-// const fs = require('fs');
 const axios = require('axios');
-// const xml2js = require('xml2js');
 
 const app = express();
 
@@ -16,8 +12,7 @@ app.use('/', express.static(path.join(__dirname, '../client/')));
 export default class App {
 
   constructor() {
-    console.log("instantiate app");
-    console.log("attach debugger now");
+    console.log("instantiate app - attach debugger now");
     setTimeout( () => {
       this.run();
     }, 1000);
@@ -72,8 +67,6 @@ export default class App {
 
   scaleImage(width, height, img) {
 
-    console.log("entry: ", width, height);
-
     let scaleFactor = 1.0;
 
     const widthRatio = width / 1920;
@@ -92,9 +85,6 @@ export default class App {
 
     img.style.width = scaledWidth.toString() + "px";
     img.style.height = scaledHeight.toString() + "px";
-
-    console.log("exit: ", scaledWidth, scaledHeight, scaleFactor);
-    console.log(img.style.width, img.style.height);
   }
 
   run() {
@@ -112,9 +102,9 @@ export default class App {
     });
 
     app.get('/launchSlideShow', (req, res) => {
+      console.log("launchSlideShow invoked");
       res.set('Access-Control-Allow-Origin', '*');
       const albumId = req.query.albumId;
-      // document.getElementById("main").innerHTML += "Launch slide show using albumId: " + albumId + "<br>";
       let promise = this.fetchAlbum(albumId);
       promise.then( (feed) => {
 
@@ -124,10 +114,6 @@ export default class App {
 
         const img = document.getElementById("mainImage");
         img.display = 'block';
-        // img.style.maxWidth = '1920px';
-        // img.style.maxHeight = '1080px';
-        // img.style.width = 'auto';
-        // img.style.height = 'auto';
 
         let photoIndex = 0;
         setInterval( () => {
