@@ -15,8 +15,6 @@ export default class App {
 
     console.log("instantiate app - attach debugger now");
 
-    this.imageUrl = "";
-
     setTimeout( () => {
       this.run();
     }, 1000);
@@ -69,7 +67,7 @@ export default class App {
     });
   }
 
-  scaleImage(width, height, img) {
+  scaleImage(img, width, height ) {
 
     let scaleFactor = 1.0;
 
@@ -91,6 +89,36 @@ export default class App {
     img.style.height = scaledHeight.toString() + "px";
   }
 
+
+  playSlideShow(photos) {
+
+    let photoIndex = 0;
+    let photoWidth, photoHeight;
+
+    console.log("Number of photos is: " + photos.length);
+
+    const img = document.getElementById("mainImage");
+    img.display = 'block';
+
+    setInterval( () => {
+      const photo = photos[photoIndex];
+      const photoContent = photos[photoIndex].content[0].$;
+
+      photoWidth = Number(photo['gphoto:width'][0]);
+      photoHeight = Number(photo['gphoto:height'][0]);
+
+      img.src = photoContent.src;
+
+      photoIndex = (photoIndex + 1) % photos.length;
+    }, 4000);
+
+    // don't scale img until it's loaded - otherwise, existing image is displayed incorrectly until image downloads
+    img.onload = () => {
+      this.scaleImage(img, photoWidth, photoHeight);
+    };
+  }
+
+
   run() {
 
     console.log("launch shafferoogle server - listening on port 8080");
@@ -111,35 +139,7 @@ export default class App {
       const albumId = req.query.albumId;
       let promise = this.fetchAlbum(albumId);
       promise.then( (feed) => {
-
-        const photos = feed.entry;
-
-        console.log("Number of photos is: " + photos.length);
-
-        const img = document.getElementById("mainImage");
-        img.display = 'block';
-
-        img.onload = () => {
-          this.scaleImage(this.photoWidth, this.photoHeight, img);
-          console.log("img.onload invoked: ", this.imageUrl);
-        };
-
-        let photoIndex = 0;
-        setInterval( () => {
-          const photo = photos[photoIndex];
-          const photoContent = photos[photoIndex].content[0].$;
-
-          this.photoWidth = Number(photo['gphoto:width'][0]);
-          this.photoHeight = Number(photo['gphoto:height'][0]);
-          // this.scaleImage(photoWidth, photoHeight, img);
-
-          this.imageUrl = photoContent.src;
-          console.log("set img.src: ", photoContent.src);
-          img.src = photoContent.src;
-
-          photoIndex = (photoIndex + 1) % photos.length;
-        }, 4000);
-
+        this.playSlideShow(feed.entry);
       });
       res.status(200).send(null);
     });
