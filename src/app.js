@@ -15,11 +15,15 @@ export default class App {
 
     console.log("instantiate app - attach debugger now");
 
+    this.bsMessage = new BSMessagePort();
+    console.log("typeof bsMessage is " + typeof this.bsMessage);
+
     this.photoTimer = null;
 
-    setTimeout( () => {
-      this.run();
-    }, 1000);
+    // setTimeout( () => {
+    //   this.run();
+    // }, 20000);
+    this.run();
 
     const port = process.env.PORT || 8080;
     app.listen(port);
@@ -100,7 +104,7 @@ export default class App {
     console.log("Number of photos is: " + photos.length);
 
     document.getElementById("introMessage").style.display = "none";
-    document.getElementById("deviceId").style.display = "none";
+    document.getElementById("deviceIpAddress").style.display = "none";
 
     if (this.photoTimer) {
       clearInterval(this.photoTimer);
@@ -127,19 +131,42 @@ export default class App {
     };
   }
 
+  processBSMessage(message) {
+    console.log("onbsmessage invoked");
+    console.log(message);
+
+    let bsMessage = {};
+
+    for (let name in message.data) {
+      console.log('### ' + name + ': ' + message.data[name]);
+      bsMessage[name] = message.data[name];
+    }
+
+    switch (bsMessage.command) {
+      case "setIPAddress":
+        {
+          console.log("******************* - setIPAddress)");
+          const brightSignIPAddress = bsMessage.value;
+          document.getElementById("deviceIpAddress").innerHTML = "BrightPhoto IP address: " + brightSignIPAddress;
+          break;
+        }
+    }
+  }
 
   run() {
+
+    let self = this;
 
     console.log("launch shafferoogle server - listening on port 8080");
 
     app.get('/fetchAlbums', (_, res) => {
       res.set('Access-Control-Allow-Origin', '*');
-      this.fetchAlbums().then( (albumsResponse) => {
+      this.fetchAlbums().then((albumsResponse) => {
         res.status(200).send(albumsResponse);
       })
-      .catch( (albumsError) => {
-        res.send(albumsError);
-      });
+        .catch((albumsError) => {
+          res.send(albumsError);
+        });
     });
 
     app.get('/launchSlideShow', (req, res) => {
@@ -147,10 +174,14 @@ export default class App {
       res.set('Access-Control-Allow-Origin', '*');
       const albumId = req.query.albumId;
       let promise = this.fetchAlbum(albumId);
-      promise.then( (feed) => {
+      promise.then((feed) => {
         this.playSlideShow(feed.entry);
       });
       res.status(200).send(null);
     });
+
+    this.bsMessage.onbsmessage = function (msg) {
+      self.processBSMessage(msg);
+    };
   }
 }
