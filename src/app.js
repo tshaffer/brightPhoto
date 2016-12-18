@@ -15,6 +15,8 @@ export default class App {
 
     console.log("instantiate app - attach debugger now");
 
+    this.photoTimer = null;
+
     setTimeout( () => {
       this.run();
     }, 1000);
@@ -100,10 +102,14 @@ export default class App {
     document.getElementById("introMessage").style.display = "none";
     document.getElementById("deviceId").style.display = "none";
 
+    if (this.photoTimer) {
+      clearInterval(this.photoTimer);
+    }
+
     const img = document.getElementById("mainImage");
     img.display = 'block';
 
-    setInterval( () => {
+    this.photoTimer = setInterval( () => {
       const photo = photos[photoIndex];
       const photoContent = photos[photoIndex].content[0].$;
 
