@@ -97,6 +97,9 @@ export default class App {
 
     console.log("Number of photos is: " + photos.length);
 
+    document.getElementById("introMessage").style.display = "none";
+    document.getElementById("deviceId").style.display = "none";
+
     const img = document.getElementById("mainImage");
     img.display = 'block';
 
