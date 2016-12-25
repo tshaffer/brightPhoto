@@ -77,10 +77,8 @@ export default class App {
 
     let scaleFactor = 1.0;
 
-    // const widthRatio = width / 1920;
-    // const heightRatio = height / 1080;
-    const widthRatio = width / 4096;
-    const heightRatio = height / 2160;
+    const widthRatio = width / 1920;
+    const heightRatio = height / 1080;
     if (widthRatio < 1 && heightRatio < 1) {
       scaleFactor = 1.0;
     }
@@ -95,11 +93,6 @@ export default class App {
 
     img.style.width = scaledWidth.toString() + "px";
     img.style.height = scaledHeight.toString() + "px";
-
-    // image-rendering: crisp-edges;
-    img.style.imageRendering = "crisp-edges";
-    img.imageRendering = "crisp-edges";
-
   }
 
 
