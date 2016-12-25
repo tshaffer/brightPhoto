@@ -34,7 +34,8 @@ export default class App {
 
     return new Promise( (resolve, reject) => {
 
-      const getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
+      // const getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family";
+      const getAlbumsUrl = "http://picasaweb.google.com/data/feed/api/user/shafferfamilyphotostlsjr";
       axios.get(getAlbumsUrl)
         .then(function (albumsResponse) {
           const xml = albumsResponse.data;
@@ -54,7 +55,8 @@ export default class App {
 
     return new Promise( (resolve, reject) => {
 
-      const getAlbumUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family/albumid/" + albumId;
+      // const getAlbumUrl = "http://picasaweb.google.com/data/feed/api/user/shaffer.family/albumid/" + albumId;
+      const getAlbumUrl = "http://picasaweb.google.com/data/feed/api/user/shafferfamilyphotostlsjr/albumid/" + albumId;
 
       axios.get(getAlbumUrl, {
         params: {albumId}
