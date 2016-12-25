@@ -13,7 +13,8 @@ Sub Main()
     msgPort = CreateObject("roMessagePort")
 
     ' configure and create node / htmlWidget
-    r = CreateObject("roRectangle", 0,0,1920,1080)
+    ' r = CreateObject("roRectangle", 0,0,1920,1080)
+    r = CreateObject("roRectangle", 0,0,4096,2160)
 
     aa = {}
     aa.AddReplace("nodejs_enabled",true)
